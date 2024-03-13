@@ -6,10 +6,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Usuario } from './entities/user.entity';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
+import { DiscordService } from './discord/discord.service';
+import { DiscordController } from './discord/discord.controller';
+import { DiscordStrategy } from './strategies/discord.strategy';
 
 @Module({
-  controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
+  controllers: [AuthController, DiscordController],
+  providers: [AuthService, JwtStrategy, DiscordService, DiscordStrategy],
   imports: [
     TypeOrmModule.forFeature([Usuario]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
@@ -27,6 +30,12 @@ import { JwtModule } from '@nestjs/jwt';
       },
     }),
   ],
-  exports: [JwtStrategy, PassportModule, TypeOrmModule, JwtModule],
+  exports: [
+    JwtStrategy,
+    PassportModule,
+    TypeOrmModule,
+    JwtModule,
+    DiscordStrategy,
+  ],
 })
 export class AuthModule {}
