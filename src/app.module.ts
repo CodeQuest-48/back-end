@@ -7,6 +7,7 @@ import { AppService } from './app.service';
 
 import { ParticipantesModule } from './participantes/participantes.module';
 import { LotteryModule } from './lottery/lottery.module';
+import { PremiosModule } from './premios/premios.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { LotteryModule } from './lottery/lottery.module';
     }),
     ParticipantesModule,
     LotteryModule,
+    PremiosModule,
   ],
   controllers: [AppController],
   providers: [AppService],
