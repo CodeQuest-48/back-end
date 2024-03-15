@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { JwtStrategy } from './strategies/jwt.strategy';
@@ -9,6 +9,9 @@ import { JwtModule } from '@nestjs/jwt';
 import { DiscordService } from './discord/discord.service';
 import { DiscordController } from './discord/discord.controller';
 import { DiscordStrategy } from './strategies/discord.strategy';
+import { ParticipantesModule } from 'src/participantes/participantes.module';
+import { LotteryModule } from 'src/lottery/lottery.module';
+import { SorteoIdMiddleware } from './middlewares/sorteo-id.middleware';
 
 @Module({
   controllers: [AuthController, DiscordController],
@@ -29,6 +32,8 @@ import { DiscordStrategy } from './strategies/discord.strategy';
         };
       },
     }),
+    ParticipantesModule,
+    LotteryModule,
   ],
   exports: [
     JwtStrategy,
@@ -38,4 +43,8 @@ import { DiscordStrategy } from './strategies/discord.strategy';
     DiscordStrategy,
   ],
 })
-export class AuthModule {}
+export class AuthModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(SorteoIdMiddleware).forRoutes('auth/discord');
+  }
+}

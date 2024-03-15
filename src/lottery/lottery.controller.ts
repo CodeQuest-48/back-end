@@ -12,17 +12,17 @@ import { CreateLotteryDto } from './dto/create-lottery.dto';
 import { UpdateLotteryDto } from './dto/update-lottery.dto';
 
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Lottery } from './entities/lottery.entity';
+import { Sorteo } from './entities/sorteo.entity';
 
-@Controller('lottery')
+@Controller('sorteos')
 export class LotteryController {
   constructor(private readonly lotteryService: LotteryService) {}
 
-  @Post()
+  @Post('new')
   @ApiResponse({
     status: 201,
     description: 'Lottery created succesfully',
-    type: Lottery,
+    type: Sorteo,
   })
   create(@Body() createLotteryDto: CreateLotteryDto) {
     return this.lotteryService.create(createLotteryDto);

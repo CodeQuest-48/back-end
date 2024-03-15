@@ -2,25 +2,25 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { CreateLotteryDto } from './dto/create-lottery.dto';
 import { UpdateLotteryDto } from './dto/update-lottery.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Lottery } from './entities/lottery.entity';
 import { DataSource, Repository } from 'typeorm';
 import { isUUID } from 'class-validator';
+import { Sorteo } from './entities/sorteo.entity';
 
 @Injectable()
 export class LotteryService {
   private readonly logger = new Logger('LotteryService');
 
   constructor(
-    @InjectRepository(Lottery)
-    private readonly lotteryRepository: Repository<Lottery>,
+    @InjectRepository(Sorteo)
+    private readonly sorteoRepositorio: Repository<Sorteo>,
 
     private readonly datasource: DataSource,
   ) {}
 
   async create(createLotteryDto: CreateLotteryDto) {
     try {
-      const lottery = this.lotteryRepository.create({ ...createLotteryDto });
-      await this.lotteryRepository.save(lottery);
+      const lottery = this.sorteoRepositorio.create({ ...createLotteryDto });
+      await this.sorteoRepositorio.save(lottery);
       return lottery;
     } catch (error) {
       this.logger.error(error.message);
@@ -28,17 +28,17 @@ export class LotteryService {
   }
 
   async findAll() {
-    const lotteries = await this.lotteryRepository.find();
+    const lotteries = await this.sorteoRepositorio.find();
     return lotteries;
   }
 
   async findOne(term: string) {
-    let lottery: Lottery;
+    let lottery: Sorteo;
 
     if (isUUID(term)) {
-      lottery = await this.lotteryRepository.findOneBy({ id: term });
+      lottery = await this.sorteoRepositorio.findOneBy({ id: term });
     } else {
-      const queryBuilder = this.lotteryRepository.createQueryBuilder('lott');
+      const queryBuilder = this.sorteoRepositorio.createQueryBuilder('lott');
 
       lottery = await queryBuilder
         .where('UPPER(title) =:title', {
@@ -53,7 +53,7 @@ export class LotteryService {
   }
 
   async update(id: string, updateLotteryDto: UpdateLotteryDto) {
-    const lottery = await this.lotteryRepository.preload({
+    const lottery = await this.sorteoRepositorio.preload({
       id,
       ...updateLotteryDto,
     });
@@ -81,7 +81,7 @@ export class LotteryService {
 
   async remove(id: string) {
     const lottery = await this.findOne(id);
-    await this.lotteryRepository.remove(lottery);
+    await this.sorteoRepositorio.remove(lottery);
     return 'Lottery deleted succesfully';
   }
 }

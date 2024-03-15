@@ -1,16 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Body, Patch, Param, Delete } from '@nestjs/common';
 import { ParticipantesService } from './participantes.service';
-import { CreateParticipanteDto } from './dto/create-participante.dto';
 import { UpdateParticipanteDto } from './dto/update-participante.dto';
 
 @Controller('participantes')
 export class ParticipantesController {
   constructor(private readonly participantesService: ParticipantesService) {}
-
-  @Post()
-  create(@Body() createParticipanteDto: CreateParticipanteDto) {
-    return this.participantesService.create(createParticipanteDto);
-  }
 
   @Get()
   findAll() {
@@ -23,7 +17,10 @@ export class ParticipantesController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateParticipanteDto: UpdateParticipanteDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateParticipanteDto: UpdateParticipanteDto,
+  ) {
     return this.participantesService.update(+id, updateParticipanteDto);
   }
 

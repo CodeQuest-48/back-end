@@ -1,7 +1,9 @@
+import { Sorteo } from 'src/lottery/entities/sorteo.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -11,13 +13,16 @@ export class Participante {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'text', nullable: false })
+  @Column({ type: 'text' })
   discordId: string;
 
-  @Column({ type: 'text', nullable: false })
+  @Column({ type: 'text' })
   username: string;
 
-  @Column({ type: 'text', nullable: false })
+  @Column({ type: 'text' })
+  globalNameDiscord: string;
+
+  @Column({ type: 'text', nullable: true })
   avatarDiscord: string;
 
   @CreateDateColumn()
@@ -25,4 +30,7 @@ export class Participante {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @ManyToMany(() => Sorteo)
+  sorteos: Sorteo[];
 }
