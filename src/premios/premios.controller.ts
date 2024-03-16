@@ -1,20 +1,39 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { PremiosService } from './premios.service';
 import { CreatePremioDto } from './dto/create-premio.dto';
 import { UpdatePremioDto } from './dto/update-premio.dto';
+import { Auth } from 'src/auth/decorators/auth.decorator';
+import { ValidRoles } from 'src/auth/interfaces/valid-roles';
+import { ApiTags } from '@nestjs/swagger';
+import { GetUser } from 'src/auth/decorators/get-user.decorator';
+import { Usuario } from 'src/auth/entities/user.entity';
 
-@Controller('premios')
+@Auth(ValidRoles.admin)
+@ApiTags('premios')
+@Controller('premios/:sorteoId')
 export class PremiosController {
   constructor(private readonly premiosService: PremiosService) {}
 
-  @Post()
-  create(@Body() createPremioDto: CreatePremioDto) {
-    return this.premiosService.create(createPremioDto);
+  @Post('new')
+  create(
+    @Body() createPremioDto: CreatePremioDto,
+    @Param('sorteoId') sorteoId: string,
+    @GetUser() usuario: Usuario,
+  ) {
+    return this.premiosService.create(createPremioDto, sorteoId, usuario);
   }
 
   @Get()
-  findAll() {
-    return this.premiosService.findAll();
+  findAll(@Param('sorteoId') sorteoId: string, @GetUser() usuario: Usuario) {
+    return this.premiosService.findAll(sorteoId, usuario);
   }
 
   @Get(':id')

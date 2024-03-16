@@ -13,7 +13,13 @@ import { UpdateLotteryDto } from './dto/update-lottery.dto';
 
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Sorteo } from './entities/sorteo.entity';
+import { Auth } from 'src/auth/decorators/auth.decorator';
+import { ValidRoles } from 'src/auth/interfaces/valid-roles';
+import { GetUser } from 'src/auth/decorators/get-user.decorator';
+import { Usuario } from 'src/auth/entities/user.entity';
 
+@ApiTags('sorteos')
+@Auth(ValidRoles.admin)
 @Controller('sorteos')
 export class LotteryController {
   constructor(private readonly lotteryService: LotteryService) {}
@@ -24,8 +30,11 @@ export class LotteryController {
     description: 'Lottery created succesfully',
     type: Sorteo,
   })
-  create(@Body() createLotteryDto: CreateLotteryDto) {
-    return this.lotteryService.create(createLotteryDto);
+  create(
+    @Body() createLotteryDto: CreateLotteryDto,
+    @GetUser() usuario: Usuario,
+  ) {
+    return this.lotteryService.create(createLotteryDto, usuario);
   }
 
   @Get()

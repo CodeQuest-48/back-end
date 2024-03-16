@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { isUUID } from 'class-validator';
 import { Sorteo } from './entities/sorteo.entity';
+import { Usuario } from 'src/auth/entities/user.entity';
 
 @Injectable()
 export class LotteryService {
@@ -17,18 +18,24 @@ export class LotteryService {
     private readonly datasource: DataSource,
   ) {}
 
-  async create(createLotteryDto: CreateLotteryDto) {
+  async create(createLotteryDto: CreateLotteryDto, usuario: Usuario) {
     try {
-      const lottery = this.sorteoRepositorio.create({ ...createLotteryDto });
+      const lottery = this.sorteoRepositorio.create({
+        ...createLotteryDto,
+        creador: usuario,
+      });
       await this.sorteoRepositorio.save(lottery);
       return lottery;
     } catch (error) {
       this.logger.error(error.message);
+      throw new Error('Ha ocurrido un error creando el sorteo');
     }
   }
 
   async findAll() {
-    const lotteries = await this.sorteoRepositorio.find();
+    const lotteries = await this.sorteoRepositorio.find({
+      relations: ['creador', 'participantes'],
+    });
     return lotteries;
   }
 

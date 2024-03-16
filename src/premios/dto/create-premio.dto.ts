@@ -3,13 +3,13 @@ import { IsOptional, IsString, MinLength } from 'class-validator';
 export class CreatePremioDto {
   @IsString()
   @MinLength(1)
-  titulo: string;
+  title: string;
 
   @IsString()
   @MinLength(1)
-  descripcion: string;
+  description: string;
 
   @IsString()
   @IsOptional()
-  foto: string;
+  urlImage: string;
 }

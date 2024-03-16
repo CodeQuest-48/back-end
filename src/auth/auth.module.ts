@@ -1,4 +1,9 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  forwardRef,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { JwtStrategy } from './strategies/jwt.strategy';
@@ -33,7 +38,7 @@ import { SorteoIdMiddleware } from './middlewares/sorteo-id.middleware';
       },
     }),
     ParticipantesModule,
-    LotteryModule,
+    forwardRef(() => LotteryModule),
   ],
   exports: [
     JwtStrategy,

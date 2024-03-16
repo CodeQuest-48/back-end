@@ -1,18 +1,22 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Sorteo } from 'src/lottery/entities/sorteo.entity';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity({ name: 'premio' })
+@Entity('premios')
 export class Premio {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column('text')
-  titulo: string;
+  title: string;
 
   @Column('text')
-  descripcion: string;
+  description: string;
 
   @Column('text', {
     nullable: true,
   })
-  foto: string;
+  urlImage: string;
+
+  @ManyToOne(() => Sorteo, (sorteo) => sorteo.premios)
+  sorteo: Sorteo;
 }

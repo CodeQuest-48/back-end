@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Sorteo } from 'src/lottery/entities/sorteo.entity';
 
 import {
   Column,
@@ -34,9 +35,13 @@ export class Usuario {
   @Column({ type: 'varchar', length: 50, default: 'usuario' })
   rol: string;
 
-  @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
+  @CreateDateColumn({ type: 'date' })
   fecha_creacion: Date;
 
-  @UpdateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
+  @UpdateDateColumn({ type: 'date' })
   fecha_ultima_modificacion: Date;
+
+  //Relación con la entidad Sorteo
+  @OneToMany(() => Sorteo, (sorteo) => sorteo.creador)
+  sorteos: Sorteo[];
 }
