@@ -1,7 +1,12 @@
 import { Controller, Get, Body, Patch, Param, Delete } from '@nestjs/common';
 import { ParticipantesService } from './participantes.service';
 import { UpdateParticipanteDto } from './dto/update-participante.dto';
+import { Auth } from 'src/auth/decorators/auth.decorator';
+import { ValidRoles } from 'src/auth/interfaces/valid-roles';
+import { ApiTags } from '@nestjs/swagger';
 
+@Auth(ValidRoles.admin)
+@ApiTags('Participantes')
 @Controller('participantes')
 export class ParticipantesController {
   constructor(private readonly participantesService: ParticipantesService) {}
@@ -9,6 +14,12 @@ export class ParticipantesController {
   @Get()
   findAll() {
     return this.participantesService.findAll();
+  }
+
+  // Obtener todos los participantes de un sorteo
+  @Get('sorteo/:sorteoId')
+  findAllBySorteoId(@Param('sorteoId') sorteoId: string) {
+    return this.participantesService.findAllBySorteoId(sorteoId);
   }
 
   @Get(':id')

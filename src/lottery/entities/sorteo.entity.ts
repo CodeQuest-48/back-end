@@ -28,6 +28,11 @@ export class Sorteo {
   @Column({ type: Date })
   endDate: Date;
 
+  // Campo premio individual
+  @Column({ type: 'text', nullable: true })
+  premio: string;
+
+  // Relación con la entidad Premio	en caso de haber múltiples
   @OneToMany(() => Premio, (premio) => premio.sorteo)
   premios: Premio[];
 
@@ -38,4 +43,7 @@ export class Sorteo {
   @ManyToMany(() => Participante)
   @JoinTable()
   participantes: Participante[];
+
+  @ManyToOne(() => Participante, { nullable: true }) // Opcional si aún no se ha determinado un ganador.
+  ganador: Participante; // Este campo representa el ganador del sorteo. Del premio individual
 }

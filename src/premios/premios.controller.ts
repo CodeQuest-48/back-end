@@ -31,6 +31,15 @@ export class PremiosController {
     return this.premiosService.create(createPremioDto, sorteoId, usuario);
   }
 
+  // Asignar ganador a un premio
+  @Post(':premioId/asignar-ganador/:participanteId')
+  asignarGanador(
+    @Param('premioId') premioId: string,
+    @Param('participanteId') participanteId: string,
+  ) {
+    return this.premiosService.asignarGanador(premioId, participanteId);
+  }
+
   @Get()
   findAll(@Param('sorteoId') sorteoId: string, @GetUser() usuario: Usuario) {
     return this.premiosService.findAll(sorteoId, usuario);

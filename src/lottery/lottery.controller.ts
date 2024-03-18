@@ -42,18 +42,30 @@ export class LotteryController {
     return this.lotteryService.findAll();
   }
 
+  @Patch(':id/asignar-ganador/:participanteId')
+  asignarGanador(
+    @Param('id') sorteoId: string,
+    @Param('participanteId') participanteId: string,
+  ) {
+    return this.lotteryService.asignarGanadorAlSorteo(sorteoId, participanteId);
+  }
+
   @Get(':term')
-  findOne(@Param('term') term: string) {
-    return this.lotteryService.findOne(term);
+  findOne(@Param('term') term: string, @GetUser() usuario: Usuario) {
+    return this.lotteryService.findOne(term, usuario);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateLotteryDto: UpdateLotteryDto) {
-    return this.lotteryService.update(id, updateLotteryDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateLotteryDto: UpdateLotteryDto,
+    @GetUser() usuario: Usuario,
+  ) {
+    return this.lotteryService.update(id, updateLotteryDto, usuario);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.lotteryService.remove(id);
+  remove(@Param('id') id: string, @GetUser() usuario: Usuario) {
+    return this.lotteryService.remove(id, usuario);
   }
 }

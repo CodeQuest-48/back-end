@@ -6,6 +6,7 @@ import { DataSource, Repository } from 'typeorm';
 import { isUUID } from 'class-validator';
 import { Sorteo } from './entities/sorteo.entity';
 import { Usuario } from 'src/auth/entities/user.entity';
+import { Participante } from 'src/participantes/entities/participante.entity';
 
 @Injectable()
 export class LotteryService {
@@ -13,18 +14,20 @@ export class LotteryService {
 
   constructor(
     @InjectRepository(Sorteo)
-    private readonly sorteoRepositorio: Repository<Sorteo>,
+    private readonly sorteoRepository: Repository<Sorteo>,
+    @InjectRepository(Participante)
+    private readonly participanteRepository: Repository<Participante>,
 
     private readonly datasource: DataSource,
   ) {}
 
   async create(createLotteryDto: CreateLotteryDto, usuario: Usuario) {
     try {
-      const lottery = this.sorteoRepositorio.create({
+      const lottery = this.sorteoRepository.create({
         ...createLotteryDto,
         creador: usuario,
       });
-      await this.sorteoRepositorio.save(lottery);
+      await this.sorteoRepository.save(lottery);
       return lottery;
     } catch (error) {
       this.logger.error(error.message);
@@ -33,24 +36,29 @@ export class LotteryService {
   }
 
   async findAll() {
-    const lotteries = await this.sorteoRepositorio.find({
-      relations: ['creador', 'participantes'],
+    const lotteries = await this.sorteoRepository.find({
+      relations: ['creador', 'participantes', 'premios', 'ganador'],
     });
     return lotteries;
   }
 
-  async findOne(term: string) {
+  async findOne(term: string, usuario: Usuario) {
     let lottery: Sorteo;
 
     if (isUUID(term)) {
-      lottery = await this.sorteoRepositorio.findOneBy({ id: term });
+      lottery = await this.sorteoRepository.findOne({
+        where: { id: term },
+        relations: ['creador', 'participantes', 'premios', 'ganador'],
+      });
     } else {
-      const queryBuilder = this.sorteoRepositorio.createQueryBuilder('lott');
+      const queryBuilder = this.sorteoRepository.createQueryBuilder('lott');
 
       lottery = await queryBuilder
         .where('UPPER(title) =:title', {
           title: term.toUpperCase(),
         })
+        .leftJoinAndSelect('sorteo.creador', 'creador')
+        .leftJoinAndSelect('sorteo.participantes', 'participantes')
         .getOne();
     }
 
@@ -59,8 +67,12 @@ export class LotteryService {
     return lottery;
   }
 
-  async update(id: string, updateLotteryDto: UpdateLotteryDto) {
-    const lottery = await this.sorteoRepositorio.preload({
+  async update(
+    id: string,
+    updateLotteryDto: UpdateLotteryDto,
+    usuario: Usuario,
+  ) {
+    const lottery = await this.sorteoRepository.preload({
       id,
       ...updateLotteryDto,
     });
@@ -78,7 +90,7 @@ export class LotteryService {
       await queryRunner.commitTransaction();
       await queryRunner.release();
 
-      return this.findOne(id);
+      return this.findOne(id, usuario);
     } catch (error) {
       await queryRunner.rollbackTransaction();
       await queryRunner.release();
@@ -86,9 +98,43 @@ export class LotteryService {
     }
   }
 
-  async remove(id: string) {
-    const lottery = await this.findOne(id);
-    await this.sorteoRepositorio.remove(lottery);
+  async remove(id: string, usuario: Usuario) {
+    const lottery = await this.findOne(id, usuario);
+    await this.sorteoRepository.remove(lottery);
     return 'Lottery deleted succesfully';
+  }
+
+  // ASIGNAR GANADOR A UN SORTEO - PREMIO INDIVIDUAL
+  async asignarGanadorAlSorteo(
+    sorteoId: string,
+    participanteId: string,
+  ): Promise<Sorteo> {
+    const sorteo = await this.sorteoRepository.findOne({
+      where: { id: sorteoId },
+      relations: ['participantes'],
+    });
+    if (!sorteo) {
+      throw new Error('Sorteo no encontrado');
+    }
+
+    const ganador = await this.participanteRepository.findOneBy({
+      id: participanteId,
+    });
+    if (!ganador) {
+      throw new Error('Participante no encontrado');
+    }
+
+    // Opcional: Verificar si el participante está inscrito en el sorteo.
+    const estaInscrito = sorteo.participantes.some(
+      (participante) => participante.id === ganador.id,
+    );
+    if (!estaInscrito) {
+      throw new Error('El participante no está inscrito en el sorteo');
+    }
+
+    sorteo.ganador = ganador; // Asigna el ganador al sorteo.
+    await this.sorteoRepository.save(sorteo); // Guarda los cambios en la base de datos.
+
+    return sorteo;
   }
 }

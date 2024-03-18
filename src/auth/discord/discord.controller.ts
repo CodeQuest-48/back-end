@@ -37,22 +37,35 @@ export class DiscordController {
         sorteoId,
       );
 
-      // Devuelve un JSON con los datos del participante
-      res.json(participante);
+      // Redirige a la página de confirmación con el id del participante
+      return res.redirect(
+        `${process.env.FRONTEND_URL}/sorteo/success/${participante.id}`,
+      );
     } catch (error) {
       // Personaliza la respuesta en base al tipo de error
       console.error('Error en handleRedirect:', error);
 
       // Aquí se manejan los errores específicos lanzados desde el servicio
       if (error instanceof BadRequestException) {
-        return res.status(400).json(error.getResponse());
+        return res.redirect(
+          `${process.env.FRONTEND_URL}/sorteo/failed?error=${encodeURIComponent(
+            error.message,
+          )}}`,
+        );
       }
       if (error instanceof NotFoundException) {
-        return res.status(404).json(error.getResponse());
+        return res.redirect(
+          `${process.env.FRONTEND_URL}/sorteo/failed?error=${encodeURIComponent(
+            error.message,
+          )}}`,
+        );
       }
 
-      // Para cualquier otro tipo de error, se devuelve un error genérico del servidor
-      return res.status(500).json({ message: 'Error interno del servidor' });
+      return res.redirect(
+        `${process.env.FRONTEND_URL}/sorteo/failed?error=${encodeURIComponent(
+          error.message,
+        )}}`,
+      );
     }
   }
 }

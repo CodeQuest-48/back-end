@@ -15,6 +15,7 @@ import { UpdatePremioDto } from './dto/update-premio.dto';
 import { Premio } from './entities/premio.entity';
 import { Usuario } from 'src/auth/entities/user.entity';
 import { Sorteo } from 'src/lottery/entities/sorteo.entity';
+import { Participante } from 'src/participantes/entities/participante.entity';
 
 @Injectable()
 export class PremiosService {
@@ -23,6 +24,8 @@ export class PremiosService {
   constructor(
     @InjectRepository(Premio)
     private readonly premiosRepository: Repository<Premio>,
+    @InjectRepository(Participante)
+    private readonly participanteRepository: Repository<Participante>,
 
     private readonly datasource: DataSource,
   ) {}
@@ -46,6 +49,32 @@ export class PremiosService {
     } catch (error) {
       this.handleError(error);
     }
+  }
+
+  // Asignar ganador a un premio
+  async asignarGanador(premioId: string, participanteId: string) {
+    const premio = await this.premiosRepository.findOne({
+      where: { id: premioId },
+      relations: ['sorteo', 'ganador'],
+    });
+    if (!premio) {
+      throw new NotFoundException(`Premio con ID "${premioId}" no encontrado.`);
+    }
+
+    const participante = await this.participanteRepository.findOneBy({
+      id: participanteId,
+    });
+    if (!participante) {
+      throw new NotFoundException(
+        `Participante con ID "${participanteId}" no encontrado.`,
+      );
+    }
+
+    // Asigna el ganador y guarda el cambio
+    premio.ganador = participante;
+    await this.premiosRepository.save(premio);
+
+    return premio;
   }
 
   async findAll(sorteoId: string, usuario: Usuario) {

@@ -1,4 +1,5 @@
 import { Sorteo } from 'src/lottery/entities/sorteo.entity';
+import { Participante } from 'src/participantes/entities/participante.entity';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('premios')
@@ -19,4 +20,7 @@ export class Premio {
 
   @ManyToOne(() => Sorteo, (sorteo) => sorteo.premios)
   sorteo: Sorteo;
+
+  @ManyToOne(() => Participante, { nullable: true })
+  ganador: Participante;
 }

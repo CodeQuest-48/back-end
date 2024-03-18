@@ -32,12 +32,12 @@ import { SorteoIdMiddleware } from './middlewares/sorteo-id.middleware';
         return {
           secret: process.env.JWT_SECRET,
           signOptions: {
-            expiresIn: '6h',
+            expiresIn: '24h',
           },
         };
       },
     }),
-    ParticipantesModule,
+    forwardRef(() => ParticipantesModule),
     forwardRef(() => LotteryModule),
   ],
   exports: [

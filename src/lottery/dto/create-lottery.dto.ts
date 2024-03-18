@@ -14,4 +14,7 @@ export class CreateLotteryDto {
 
   @IsDateString()
   endDate: Date;
+
+  @IsString()
+  premio: string;
 }
